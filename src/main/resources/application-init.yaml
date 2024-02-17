@@ -1,0 +1,2 @@
+app.path: data/default_contacts.txt
+app.pathSave: data/save_contacts.txt
