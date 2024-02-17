@@ -1,4 +1,4 @@
-<center><font size="3" face="Georgia"> <h3> ""Приложение «Контакты»"
+<center><font size="3" face="Georgia"> <h3> "Приложение «Контакты»"
 </h3></font>
 </center>
 
