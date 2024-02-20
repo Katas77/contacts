@@ -11,82 +11,83 @@ import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+
 
 @Component
-@PropertySource("classpath:application-noInit.yaml")
+@PropertySource(value = "classpath:application-noInit.yaml", factory = YamlPropertySourceFactory.class)
 @Profile("noInit")
 public class WorkingFileNoInit implements WorkingFile {
     InitSavePaths path;
-    private ArrayList<Contact> contactsArrayList = new ArrayList<>();
+    private HashMap<String, Contact> contactsMap = new HashMap<>();
 
     @Autowired
     public WorkingFileNoInit(InitSavePaths simplePath) {
         this.path = simplePath;
     }
 
-    public ArrayList<Contact> readContacts() {
+    public HashMap<String, Contact> readContacts() {
         File file = new File(path.getPathSave());
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
             for (; ; ) {
                 String[] contactOne = reader.readLine().split(";");
-                contactsArrayList.add(new Contact(contactOne[0].trim(), contactOne[1].trim(), contactOne[2].trim().substring(0, contactOne[2].trim().length() - 1)));
-                if (contactOne.length == 0) {
+                String email = contactOne[2].trim();
+                contactsMap.put(email, new Contact(contactOne[0].trim(), contactOne[1].trim(), email));
+                if (contactOne.length != 3) {
                     break;
                 }
             }
         } catch (Exception exception) {
-           exception.getMessage();
+            exception.getMessage();
         }
-        return contactsArrayList;
+        return contactsMap;
     }
 
 
     public void printContacts() {
-        contactsArrayList = new ArrayList<>();
-        ArrayList<Contact> printList = readContacts();
-        if (printList.isEmpty()) {
+        contactsMap = new HashMap<>();
+        readContacts().values();
+        if (readContacts().values().isEmpty()) {
             System.out.println("Список контактов пустой");
         } else {
-            printList.forEach(System.out::println);
+            readContacts().values().forEach(contact -> System.out.println(contact.getFullName() + "; " + contact.getPhoneNumber() + "; " + contact.getEmail()));
         }
     }
 
     public void addContacts(String contact) {
-        contactsArrayList = new ArrayList<>();
+        contactsMap = new HashMap<>();
         readContacts();
         String[] contactArr = contact.split(";");
-        contactsArrayList.add(new Contact(contactArr[0].trim(), contactArr[1].trim(), contactArr[2].trim().substring(0, contactArr[2].trim().length() - 1)));
+        String email = contactArr[2].trim();
+        contactsMap.put(email, new Contact(contactArr[0].trim(), contactArr[1].trim(), email));
         recordingFile();
         System.out.println("Контакт    с " + contactArr[0].trim() + " добавлен ");
     }
 
     public void delContact(String email) {
-        contactsArrayList = new ArrayList<>();
+        contactsMap = new HashMap<>();
         readContacts();
-        if (contactsArrayList.stream().noneMatch(contact -> contact.getEmail().equals(email))) {
+        if (!contactsMap.containsKey(email)) {
             System.out.println("В списках нет контакта  с email - " + email);
             return;
         }
-        String fullName = contactsArrayList.stream().filter(contact -> contact.getEmail().equals(email)).collect(Collectors.toList()).get(0).getFullName();
-        contactsArrayList = (ArrayList<Contact>) contactsArrayList.stream().filter(contact -> !contact.getEmail().contains(email)).collect(Collectors.toList());
+        String fullName = contactsMap.get(email).getFullName();
+        contactsMap.remove(email);
         recordingFile();
         System.out.println("Контакт  " + fullName + "  с email  " + email + "  удален ");
     }
 
     private void recordingFile() {
         ArrayList<String> newContactsStr = new ArrayList<>();
-        contactsArrayList.forEach(contacts -> newContactsStr.add(contacts.getFullName() + ";" + contacts.getPhoneNumber() + ";" + contacts.getEmail() + "."));
-        System.out.println(newContactsStr.size());
+        contactsMap.values().forEach(contacts -> newContactsStr.add(contacts.getFullName() + ";" + contacts.getPhoneNumber() + ";" + contacts.getEmail()));
         if (newContactsStr.isEmpty()) {
             return;
         }
         try {
             Files.write(Paths.get(path.getPathSave()), newContactsStr);
         } catch (Exception exception) {
-            System.out.println(exception.getMessage());
+            exception.getMessage();
         }
-
     }
 }

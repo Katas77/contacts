@@ -1,21 +1,24 @@
 package org.example;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Scanner;
 
+
 @Component
 public class WorkingConsole {
     private final WorkingFile workingFile;
     private final String[] commandArr = {"print", "add", "del", "stop"};
-    private final Scanner Scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     private boolean exit;
+
 
     public WorkingConsole(WorkingFile workingFile) {
         this.workingFile = workingFile;
     }
+
 
     public void start() {
         while (true) {
@@ -25,7 +28,7 @@ public class WorkingConsole {
                     "•\tadd (Добавить новый контакт в список контактов)\n" +
                     "•\tdel (Удалить контакт по email)\n" +
                     "•\tstop (Выход из приложения ).\n");
-            String command = Scanner.nextLine();
+            String command = scanner.nextLine();
             if (command.equalsIgnoreCase("stop")) {
                 System.out.println("Вы вышли из приложения  ");
                 return;
@@ -53,8 +56,8 @@ public class WorkingConsole {
 
     public void commandAdd() {
         while (true) {
-            System.out.println("введите новый контакт   в формате -  Agafonov Andrey Yurievich; +890999999; someEmail@example.example.");
-            String contact = Scanner.nextLine();
+            System.out.println("введите новый контакт   в формате -  Agafonov Andrey Yurievich; +890999999; someEmail@example.example");
+            String contact = scanner.nextLine();
             validCommandAdd(contact);
             if (exit) {
                 return;
@@ -66,7 +69,7 @@ public class WorkingConsole {
     public void commandDel() {
         while (true) {
             System.out.println("Введите  Email контакта подлежащего удалению.");
-            String email = Scanner.nextLine();
+            String email = scanner.nextLine();
             validCommandDel(email);
             if (exit) {
                 return;
@@ -87,7 +90,7 @@ public class WorkingConsole {
 
     public void validCommandDel(String email) {
         exit = false;
-        if (!(email.replaceAll("[^@]", "").length() == 1)) {
+        if (validateEmail(email)) {
             System.out.println("Введите корректный Email в формате <имя пользователя>@<домен> ");
         } else {
             workingFile.delContact(email);
@@ -96,4 +99,8 @@ public class WorkingConsole {
 
     }
 
+    public boolean validateEmail(String emailStr) {
+        String regex = "([_A-Za-z0-9-]+)(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})";
+        return !emailStr.matches(regex);
+    }
 }

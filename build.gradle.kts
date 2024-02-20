@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("io.freefair.lombok") version "8.6"
 }
 
 group = "org.example"
@@ -14,13 +15,12 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     // https://mvnrepository.com/artifact/org.springframework/spring-context
     implementation("org.springframework:spring-context:6.0.8")
-// https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
+    // https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api
     implementation("javax.annotation:javax.annotation-api:1.2-b01")
-// https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    // https://mvnrepository.com/artifact/org.yaml/snakeyaml
     implementation("org.yaml:snakeyaml:2.0")
-// https://mvnrepository.com/artifact/org.projectlombok/lombok
-    compileOnly("org.projectlombok:lombok:1.18.14")
-
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
 }
 
 tasks.test {
