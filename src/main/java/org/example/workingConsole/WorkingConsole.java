@@ -1,6 +1,7 @@
-package org.example;
+package org.example.workingConsole;
 
 
+import org.example.impl.WorkingFile;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public class WorkingConsole {
     private final WorkingFile workingFile;
     private final String[] commandArr = {"print", "add", "del", "stop"};
     private final Scanner scanner = new Scanner(System.in);
-    private boolean exit;
+    private boolean isExit;
 
 
     public WorkingConsole(WorkingFile workingFile) {
@@ -59,7 +60,7 @@ public class WorkingConsole {
             System.out.println("введите новый контакт   в формате -  Agafonov Andrey Yurievich; +890999999; someEmail@example.example");
             String contact = scanner.nextLine();
             validCommandAdd(contact);
-            if (exit) {
+            if (isExit) {
                 return;
             }
         }
@@ -71,30 +72,30 @@ public class WorkingConsole {
             System.out.println("Введите  Email контакта подлежащего удалению.");
             String email = scanner.nextLine();
             validCommandDel(email);
-            if (exit) {
+            if (isExit) {
                 return;
             }
         }
     }
 
     public void validCommandAdd(String contact) {
-        exit = false;
+        isExit = false;
         if (!(contact.replaceAll("[^;]", "").length() == 2)) {
             System.out.println("Поставьте между фио и номером телефоном,   а также   между номером телефоном и  Email точку с запятой  ");
         } else {
-            workingFile.addContacts(contact);
-            exit = true;
+            workingFile.addContact(contact);
+            isExit = true;
         }
 
     }
 
     public void validCommandDel(String email) {
-        exit = false;
+        isExit = false;
         if (validateEmail(email)) {
             System.out.println("Введите корректный Email в формате <имя пользователя>@<домен> ");
         } else {
-            workingFile.delContact(email);
-            exit = true;
+            workingFile.deleteContactByEmail(email);
+            isExit = true;
         }
 
     }

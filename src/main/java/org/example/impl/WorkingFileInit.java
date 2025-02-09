@@ -1,5 +1,8 @@
-package org.example;
+package org.example.impl;
 
+import org.example.model.Contact;
+import org.example.config.InitSavePaths;
+import org.example.config.YamlPropertySourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
@@ -10,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -41,25 +45,23 @@ public class WorkingFileInit implements WorkingFile {
                     break;
                 }
             }
-        } catch (Exception exception) {
-            exception.getMessage();
+        } catch (IOException | NullPointerException  e) {
         }
         if (contactsMap.isEmpty()) {
             return;
         }
         ArrayList<String> newContactsStr = new ArrayList<>();
-
         contactsMap.values().forEach(contacts -> newContactsStr.add(contacts.getFullName() + ";" + contacts.getPhoneNumber() + ";" + contacts.getEmail()));
         try {
             Files.write(Paths.get(path.getPathSave()), newContactsStr);
-        } catch (Exception exception) {
-            exception.getMessage();
+        } catch (IOException e) {
+            System.err.println("Ошибка при сохранении файла: " + e.getMessage());
         }
+
     }
 
     public void printContacts() {
         contactsMap = new TreeMap<>();
-        readContacts().values();
         if (readContacts().values().isEmpty()) {
             System.out.println("Список контактов пустой");
         } else {
@@ -67,7 +69,7 @@ public class WorkingFileInit implements WorkingFile {
         }
     }
 
-    public void addContacts(String contact) {
+    public void addContact(String contact) {
         contactsMap = new TreeMap<>();
         readContacts();
         String[] contactArr = contact.split(";");
@@ -77,7 +79,7 @@ public class WorkingFileInit implements WorkingFile {
         System.out.println("Контакт    с " + contactArr[0].trim() + " добавлен ");
     }
 
-    public void delContact(String email) {
+    public void deleteContactByEmail(String email) {
         contactsMap = new TreeMap<>();
         readContacts();
         if (contactsMap.values().stream().noneMatch(contact -> contact.getEmail().equals(email))) {
@@ -99,7 +101,6 @@ public class WorkingFileInit implements WorkingFile {
         try {
             Files.write(Paths.get(path.getPathSave()), newContactsStr);
         } catch (Exception exception) {
-            System.out.println(exception.getMessage());
         }
     }
 
@@ -115,8 +116,8 @@ public class WorkingFileInit implements WorkingFile {
                     break;
                 }
             }
-        } catch (Exception exception) {
-            exception.getMessage();
+        } catch (Exception e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
         }
         return contactsMap;
     }

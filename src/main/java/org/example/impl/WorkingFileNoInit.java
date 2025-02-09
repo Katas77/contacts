@@ -1,5 +1,8 @@
-package org.example;
+package org.example.impl;
 
+import org.example.model.Contact;
+import org.example.config.InitSavePaths;
+import org.example.config.YamlPropertySourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -38,8 +42,8 @@ public class WorkingFileNoInit implements WorkingFile {
                     break;
                 }
             }
-        } catch (Exception exception) {
-            exception.getMessage();
+        } catch (Exception e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
         }
         return contactsMap;
     }
@@ -47,7 +51,6 @@ public class WorkingFileNoInit implements WorkingFile {
 
     public void printContacts() {
         contactsMap = new HashMap<>();
-        readContacts().values();
         if (readContacts().values().isEmpty()) {
             System.out.println("Список контактов пустой");
         } else {
@@ -55,7 +58,7 @@ public class WorkingFileNoInit implements WorkingFile {
         }
     }
 
-    public void addContacts(String contact) {
+    public void addContact(String contact) {
         contactsMap = new HashMap<>();
         readContacts();
         String[] contactArr = contact.split(";");
@@ -65,7 +68,7 @@ public class WorkingFileNoInit implements WorkingFile {
         System.out.println("Контакт    с " + contactArr[0].trim() + " добавлен ");
     }
 
-    public void delContact(String email) {
+    public void deleteContactByEmail(String email) {
         contactsMap = new HashMap<>();
         readContacts();
         if (!contactsMap.containsKey(email)) {
@@ -86,8 +89,8 @@ public class WorkingFileNoInit implements WorkingFile {
         }
         try {
             Files.write(Paths.get(path.getPathSave()), newContactsStr);
-        } catch (Exception exception) {
-            exception.getMessage();
+        } catch (IOException e) {
+            System.err.println("Ошибка при сохранении файла: " + e.getMessage());
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.config;
 
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -20,3 +20,4 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
         return new PropertiesPropertySource(encodedResource.getResource().getFilename(), properties);
     }
 }
+
